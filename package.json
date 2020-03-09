@@ -21,6 +21,7 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
+    "babel-watch": "^7.0.0",
     "eslint": "^3.16.1",
     "eslint-config-google": "^0.7.1"
   },
@@ -32,7 +33,8 @@
     "build": "webpack && babel src --source-maps --out-dir dist-server",
     "build-watch": "webpack --watch && babel src --source-maps --out-dir dist-server",
     "stats": "webpack --env production --profile --json > stats.json",
-    "dev": "webpack --watch"
+	 "dev": "webpack --watch",
+	 "babel": "babel-watch src/main.js"
   },
   "repository": {
     "type": "git",
