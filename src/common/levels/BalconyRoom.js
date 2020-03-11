@@ -9,8 +9,8 @@ export default class BalconyRoom extends Room {
 		
 		let u = (d) => d * this.game.platformUnit
 		// add balconys
-		this._pf(20, 10, 5, 4)
-		this._pf(10, 20, 5, 4)
+		this._pf(20, 10, 5, 1)
+		this._pf(10, 20, 5, 1)
 		this._pf(20, 30, 5, 4)
 		this._pf(10, 40, 5, 4)
 

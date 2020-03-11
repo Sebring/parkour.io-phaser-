@@ -11,19 +11,34 @@ export default class HtmlRenderer extends Renderer {
 		game = gameEngine
 		this.sprites = {}
 		this.fighterSpriteScale = 1
-		console.log('space', game.spaceHeight)
+		this.container = document.getElementById('pixi')
 	}
 
 	// expand viewport width or height
 	setDimensions() {
-		let maxWidth = Math.floor(window.innerWidth/600)
-		this.pixelsPerSpaceUnit = window.innerWidth / this.gameEngine.spaceWidth
-		console.log('Ratio', window.innerHeight/window.innerWidth, innerWidth)
-		if (window.innerHeight < this.gameEngine.spaceHeight * this.pixelsPerSpaceUnit) {
-			this.pixelsPerSpaceUnit = window.innerHeight / this.gameEngine.spaceHeight
+		let ratio = 4/3
+		let newWidth = window.innerWidth*0.9
+		let newHeight = window.innerHeight*0.9
+		let newScale = newWidth/newHeight
+
+		if (newScale > ratio) {
+			// too wide
+			console.log('too wide', newScale)
+			newWidth = newHeight * ratio
+		} else {
+			// too narrow
+			console.log('too narrow', newScale)
+			newHeight = newWidth / ratio
 		}
-		this.viewportWidth = this.gameEngine.spaceWidth * this.pixelsPerSpaceUnit
-		this.viewportHeight = this.gameEngine.spaceHeight * this.pixelsPerSpaceUnit
+		console.log('fixed scaled', newWidth/newHeight)
+		this.viewportHeight = newHeight
+		this.viewportWidth = newWidth
+
+		this.pixelsPerSpaceUnit = newWidth / 100
+		console.log('PixelsPersSpacUnit', this.pixelsPerSpaceUnit)
+		console.log('wpw, wph', this.viewportWidth, this.viewportHeight)
+		this.container.style.width = newWidth
+		this.container.style.height = newHeight
 	}
 
 	init() {
@@ -37,6 +52,7 @@ export default class HtmlRenderer extends Renderer {
 				break
 			case 'interactive':
 				console.log('interactive')
+				this.setupStage()
 				break
 			case 'loading':
 				console.log('loading')
@@ -58,6 +74,13 @@ export default class HtmlRenderer extends Renderer {
 		})
 	}
 
+	setupStage() {
+		let pixiEl = document.getElementById('pixi')
+		pixiEl.style.width = `${this.viewportWidth}px`
+		pixiEl.style.height = `${this.viewportHeight}px`
+		pixiEl.style.backgroundColor = 'white'
+	}
+
 	addFighter(fighter) {
 		let fDiv = document.createElement('div')
 		if (fighter.isDino) {
@@ -75,7 +98,7 @@ export default class HtmlRenderer extends Renderer {
 		fDiv.style.left = fighter.x * this.pixelsPerSpaceUnit
 		fDiv.style.width = fighter.width * this.pixelsPerSpaceUnit
 		fDiv.style.height = fighter.height * this.pixelsPerSpaceUnit
-		document.body.appendChild(fDiv)
+		document.getElementById('pixi').appendChild(fDiv)
 	}
 
 	removeFighter(fighter) {
@@ -98,7 +121,7 @@ export default class HtmlRenderer extends Renderer {
 		this.updatePosition(pDiv, platform)
 		this.updateSize(pDiv, platform)
 
-		document.body.appendChild(pDiv)
+		document.getElementById('pixi').appendChild(pDiv)
 	}
 
 	removePlatform(platform) {
@@ -118,7 +141,7 @@ export default class HtmlRenderer extends Renderer {
 		this.updatePosition(gDiv, goal)
 		this.updateSize(gDiv, goal)
 
-		document.body.appendChild(gDiv)
+		document.getElementById('pixi').appendChild(gDiv)
 	}
 
 	updatePosition(el, obj) {
@@ -139,15 +162,9 @@ export default class HtmlRenderer extends Renderer {
 				let el = document.querySelector(`#fighter${obj.id}`)
 				this.updatePosition(el, obj)
 				el.style.transform = `rotate(${obj.angle}deg)`
-				let scoreDiv =document.querySelector(`.score`)
-				scoreDiv.innerHTML = `x:${obj.friction.x}, y:${obj.friction.y}`
 			}
 			if (obj instanceof Goal) {
-				let el = document.querySelector('h1')
-				if (obj.reachGoal > -1) {
-					el.style.display = 'block'
-				} else 
-					el.style.display = 'none'
+				
 			}
 		})
 	}

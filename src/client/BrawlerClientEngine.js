@@ -9,20 +9,9 @@ export default class BrawlerClientEngine extends ClientEngine {
 		// show try-again button
 		gameEngine.on('objectDestroyed', (obj) => {
 			if (obj.playerId === gameEngine.playerId) {
-				document.body.classList.add('lostGame');
-				document.querySelector('#tryAgain').disabled = false;
+				// player was removed/Destroyed
 			}
 		})
-
-		// remove instructions
-		setTimeout(() => {
-			document.querySelector('#instructions').classList.add('hidden');
-		}, 5000)
-
-		// restart game
-		document.querySelector('#tryAgain').addEventListener('click', () => {
-			window.location.reload()
-		});
 
 		this.controls = new KeyboardControls(this)
 		this.controls.bindKey('ctrl', 'ctrl');

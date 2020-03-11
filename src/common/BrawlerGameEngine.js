@@ -11,8 +11,8 @@ export default class BrawlerGameEngine extends GameEngine {
 
 		// game variables
 		Object.assign(this, {
-			spaceWidth: 100, spaceHeight: 100,
-			fighterWidth: 2, fighterHeight: 3, 
+			spaceWidth: 100, spaceHeight: 75,
+			fighterWidth: 3, fighterHeight: 6,
 			jumpSpeed: 1.1,
 			// jumpSpeed: 2,
 			platformUnit: 1, platformHeight: 1
