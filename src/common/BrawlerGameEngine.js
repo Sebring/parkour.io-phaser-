@@ -13,8 +13,6 @@ export default class BrawlerGameEngine extends GameEngine {
 		Object.assign(this, {
 			spaceWidth: 100, spaceHeight: 75,
 			fighterWidth: 3, fighterHeight: 6,
-			jumpSpeed: 1.1,
-			// jumpSpeed: 2,
 			platformUnit: 1, platformHeight: 1
 		})
 
@@ -97,18 +95,18 @@ export default class BrawlerGameEngine extends GameEngine {
 					// wall jump?
 					if (direction === -1 && player.x < ledge.x) {
 						player.velocity.x = (-player.runAcc) * 2
-						player.velocity.y += player.velocity.y > 0.1 ? this.jumpSpeed : 0.1
+						player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
 					} else if (direction === 1 && player.x + player.width > ledge.x + ledge.width) {
 						player.velocity.x = player.runAcc * 2
-						player.velocity.y += player.velocity.y > 0.1 ? this.jumpSpeed : 0.1
+						player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
 					}
 					// almost up, crane
 					if (yDiff > 0 && yDiff < 3) {
 						console.log('player.height', player.height)
 						if (direction === -1 && player.x + player.width > ledge.x + ledge.width) {
-							player.velocity.y = this.jumpSpeed/2
+							player.velocity.y = player.jumpForce/2
 						} else if (direction === 1 && player.x < ledge.x) {
-							player.velocity.y = this.jumpSpeed/2
+							player.velocity.y = player.jumpForce/2
 						}
 					}
 				}
@@ -116,13 +114,13 @@ export default class BrawlerGameEngine extends GameEngine {
 
 			if (inputData.input === 'ctrl') {
 				if (isRunning) {
-					player.velocity.y = this.jumpSpeed
+					player.velocity.y = player.jumpForce
 				} 
 			}
 
 			if (inputData.input === 'up') {
 				if (isClimbing) 
-					player.velocity.y = this.jumpSpeed/2
+					player.velocity.y = player.jumpForce/2
 			}
 			if (inputData.input === 'down') {
 				this.getAllActiveRooms()
@@ -134,7 +132,7 @@ export default class BrawlerGameEngine extends GameEngine {
 				}
 				// grabbing/climbing
 				else {
-					player.velocity.y = -this.jumpSpeed/2
+					player.velocity.y = -player.jumpForce/2
 				}
 			}
 
