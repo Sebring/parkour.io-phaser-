@@ -1,0 +1,221 @@
+<html>
+	<head>
+		<title>Editor</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+
+		<style>
+			#container {
+				background-color:silver;
+				border: 1px solid black;
+				clear:both;
+			}
+			.g {
+				height: 25px;
+				width: 25px;
+				background-color: thistle;
+				float: left;
+				outline: 1px solid silver;
+			
+			}
+			.g:hover {
+				background-color: black;
+			}
+			.p {
+				background-color: green;
+			}
+			</style>
+	</head>
+	<body>
+		<h1>The Editor</h1>
+		<div>
+			<label>width</label>
+			<input id="width" type="number" value="20">
+		</div>
+		<div>
+			<label>height</label>
+			<input id="height" type="number" value="20">
+		</div>
+		<button id="set">Set</button>
+
+		<hr />
+		<button id="floor">Add floor</button>
+		<div id="container">
+		</div>
+		<div style="clear:both">
+			<p>
+				<button id="parse">Parse</button>
+			</p>
+			<p>
+			</p>
+		</div>
+		<div class="rendered">
+		</div>
+
+
+		<script>
+			let start
+			let stop
+			$('#set').on('click', function() {
+				let w = $('#width').val()
+				let h = $('#height').val()
+				console.log(`h: ${h} and w: ${w}`)
+
+				updateGrid(h, w)
+			})
+
+			$('#parse').on('click', (e) => {
+				parseLevel()
+			})
+
+			$('#floor').on('click', (e) => {
+				const $container = $('#container')
+				const width = Number($('#width').val())
+				const height = Number($('#height').val())
+
+				const grids = $container.children()
+				for (let i=0; i<width; i++) {
+					grids[width*(height-1)+i].classList.add('p')
+				}
+
+			})
+
+			updateGrid = (h, w) => {
+				console.log('updateGrid', h, w)
+
+				const $container = $('#container')
+				$container.html('')
+				for (let y=0; y<h; y++) {
+					
+					for (let x=0; x<w; x++) {
+						$container.append(`<div class="g" id="g_${y}_${x}"></div>`)
+					}
+				}
+				$container.css('width', `${w*25}px`)
+				/* $container.on('click', '.g', (e) => {
+					e.target.classList.toggle('p')
+				}) */
+				$container.on('mousedown', '.g', (e) => {
+					console.log('mousedown', e.target.id)
+					start = e.target.id
+				})
+				$container.on('mouseup', '.g', (e) => {
+					console.log('mouseup', e.target.id)
+					stop = e.target.id
+					toggleRange(start, stop)
+				})
+
+			}
+
+			toggleRange = (start, stop) => {
+				const $container = $('#container')
+
+				console.log('toggleRange', start, stop)
+				let startX = Number(start.split('_')[2])
+				let startY = Number(start.split('_')[1])
+				console.log('startY, startX', startY, startX)
+				let stopX = Number(stop.split('_')[2])
+				let stopY = Number(stop.split('_')[1])
+				console.log('stopY, stopX', stopY, stopX)
+
+				for (let y=startY; y<=stopY; y++) {
+					for(let x=startX; x<=stopX; x++) {
+						let id = `#g_${y}_${x}`
+						console.log('add ', id)
+						$container.find(id).addClass('p')
+					}
+				}
+
+			}
+
+			parseLevel = () => {
+				const $container = $('#container')
+				const width = Number($('#width').val())
+				const height = Number($('#height').val())
+
+				const grids = $container.children()
+				// console.log('grids', grids)
+				let i = 0
+				let streak = 0
+				let platforms = []
+				let platform = {}
+				let parsed = []
+				grids.each( (index, grid) => {
+
+					if (!parsed.includes(index) && grid.classList.contains('p')) {
+						let y = Math.floor(index/width)
+						let x = index%width
+						console.log(`Grid ${y}, ${x} has 'p'. Streak ${streak}`)
+						if (!streak)
+							platform = {x, y}
+						
+						streak++
+					} else {
+						if (streak) {
+							if (streak > width) {
+								platform.w = width
+								platform.h = Math.floor(streak/width)
+							} else {
+								platform.w = streak
+								// check for height
+								let offset = (index-1) - (streak-1) + width
+								console.log('index, offset',index,  offset)
+								platform.h = 1
+								let p = addHeight(grids, platform, offset, width)
+								parsed = parsed.concat(p)
+								console.log('parsed', parsed)
+							}
+							platforms.push(platform)
+
+						}
+						streak = 0
+					}
+					parsed.push(i)
+					i++
+				})
+				if (streak) {
+					if (streak > width) {
+						platform.w = width
+						platform.h = Math.floor(streak/width)
+					} else {
+						platform.w = streak
+						platform.h = 1
+					}
+					platforms.push(platform)
+				}
+				console.log('platfroms', platforms)
+			}
+
+			addHeight = (grid, platform, offset, width, parsed) => {
+				console.log('addHeight', platform, offset, width)
+				let continues = true
+				const max = grid.length
+				parsed = parsed || []
+				tmp = []
+				for (let i=0; i<platform.w; i++) {
+					if (offset+i < max) {
+						if (continues && grid[offset+i].classList.contains('p')) {
+							console.log('found p')
+						} else {
+							continues = false
+						}
+						tmp.push(Number(offset+i))
+					} else {
+						console.log('above max', offset+i, max)
+						continues = false
+					}
+				}
+				if (continues) {
+					console.log(' yes add height')
+					platform.h++
+					parsed = parsed.concat(tmp)
+					if (offset+width < max-1)
+						parsed = parsed.concat(addHeight(grid, platform, Number(offset + width), width, parsed))
+				} else
+					console.log(' not continues')
+				
+				console.log(' - parsed', parsed)
+				return parsed
+			}
+		</script>
+	</body>
+</html>
