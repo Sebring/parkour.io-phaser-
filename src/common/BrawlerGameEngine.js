@@ -27,9 +27,9 @@ export default class BrawlerGameEngine extends GameEngine {
 		})
 
 		this.inputsApplied = [];
-		  this.on('preStep', this.moveAll.bind(this));
-		  this.on('collisionStart', this.collisionStart)
-		  this.on('collisionStop', this.collisionEnd)
+			this.on('preStep', this.moveAll.bind(this));
+			this.on('collisionStart', this.collisionStart)
+			this.on('collisionStop', this.collisionEnd)
 	}
 
 	registerClasses(serializer) {
