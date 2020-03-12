@@ -42,10 +42,6 @@ export default class BrawlerGameEngine extends GameEngine {
 
 		super.processInput(inputData, playerId);
 
-		// handle keyboard presses:
-		// right, left - set direction and move fighter in that direction.
-		// up          - start jump sequence
-		// space       - start the fight sequence
 		let player = this.world.queryObject({ playerId: playerId, instanceType: Fighter })
 		if (player) {
 			if (player.isStunned > inputData.step) {
