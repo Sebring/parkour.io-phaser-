@@ -55,7 +55,7 @@ export default class Room {
 		/* let pu = this.game.platformUnit
 		let o = this.game.addPlatform({ x: 0, y: 0, width: pu * 160, height: pu * 3 });
 		this.addObject(o) */
-		this._pf(0, 0, 100, 3)
+		this._pf(0, 0, this.game.spaceWidth, 3)
 	}
 
 	delete() {
