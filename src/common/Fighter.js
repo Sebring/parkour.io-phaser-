@@ -6,9 +6,9 @@ export default class Fighter extends DynamicObject {
 
 	constructor(gameEngine, options, props) {
 		super(gameEngine, options, props)
-		this.jumpForce = 1
+		this.jumpForce = 0.8
 		this.runSpeed = 2.5
-		this.runAcc = 0.2
+		this.runAcc = 0.15
 		this.angle = 0
 		this.hasGravity = 1
 		this.groundFriction = new TwoVector(0.8, 1)
