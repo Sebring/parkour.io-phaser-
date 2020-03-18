@@ -21,7 +21,7 @@ export default class BrawlerGameEngine extends GameEngine {
 		this.climbFriction = new TwoVector(0.5, 0.5)
 
 		this.physicsEngine = new PkPhysicsEngine({
-			gravity: new TwoVector(0, -0.06),
+			gravity: new TwoVector(0, -0.05),
 			collisions: { type: 'force', autoResolve: false },
 			gameEngine: this
 		})
@@ -41,9 +41,10 @@ export default class BrawlerGameEngine extends GameEngine {
 	processInput(inputData, playerId) {
 
 		super.processInput(inputData, playerId);
-
+		console.log('input', inputData)
 		let player = this.world.queryObject({ playerId: playerId, instanceType: Fighter })
-		if (player) {
+		if (player && inputData.options.movement) {
+			console.log('movement')
 			if (player.isStunned > inputData.step) {
 				return
 			}
@@ -135,6 +136,14 @@ export default class BrawlerGameEngine extends GameEngine {
 			// player.refreshToPhysics();
 			// this.inputsApplied.push(playerId);
 		}
+
+		if (inputData.input === 'editor') {
+			// TODO: validate legal editor
+			console.log('Editor!', inputData.options)
+			for (let pf of inputData.options) {
+				this.addPlatform(pf) 
+			} 
+		}
 	}
 
 	clampVelocity(velocity, max) {
@@ -178,9 +187,10 @@ export default class BrawlerGameEngine extends GameEngine {
 
 	// create a platform
 	addPlatform(desc) {
+		console.log('addPlatform, desc:', desc)
 		let p = new Platform(this, null, { playerId: 0, position: new TwoVector(desc.x, desc.y) })
-		p.width = desc.width
-		p.height = desc.height || this.platformHeight
+		p.width = desc.width || desc.w
+		p.height = desc.height || desc.h || this.platformHeight
 		p.isStatic = 1
 		this.addObjectToWorld(p)
 		return p

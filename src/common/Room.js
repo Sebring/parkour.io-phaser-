@@ -5,6 +5,8 @@ export default class Room {
 		this.label = label || 'Room'
 		this.collisionPairs = {}
 		this.isEmpty = true
+		this.rooms = []
+		this.blueprint = []
 	}
 
 	removeObject(object) {
@@ -49,13 +51,16 @@ export default class Room {
 		this.isEmpty = false
 	}
 
-	build() {
+	build(blueprint) {
 		console.log('build room', this.name)
-		// add floor
+		this.blueprint = blueprint
+		for (let i of blueprint) {
+			this._pf(i.x, i.y, i.w, i.h)
+		}// add floor
 		/* let pu = this.game.platformUnit
 		let o = this.game.addPlatform({ x: 0, y: 0, width: pu * 160, height: pu * 3 });
 		this.addObject(o) */
-		this._pf(0, 0, this.game.spaceWidth, 3)
+		// this._pf(0, 0, this.game.spaceWidth, 3)
 	}
 
 	delete() {

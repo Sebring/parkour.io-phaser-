@@ -1,7 +1,7 @@
 import { ServerEngine } from 'lance-gg'
 import Fighter from '../common/Fighter'
 import Goal from '../common/Goal'
-import BalconyRoom from '../common/levels/BalconyRoom'
+import Room from '../common/Room'
 
 let game = null
 
@@ -67,8 +67,9 @@ export default class BrawlerServerEngine extends ServerEngine {
 		}
 		if (name !== '/lobby')
 			this.createRoom(name)
-		let room = new BalconyRoom(this.gameEngine, name, label)
-		room.build()
+		let room = new Room(this.gameEngine, name, label)
+		const blueprint = [{"x":5,"y":47,"type":"p","w":90,"h":2},{"x":0,"y":0,"type":"p","w":100,"h":2}]
+		room.build(blueprint)
 		this.activeRooms[name] = room
 		return room
 	}

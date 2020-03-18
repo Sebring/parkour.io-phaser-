@@ -143,7 +143,7 @@ export default class Fighter extends DynamicObject {
 				}
 
 				player.velocity.y = 0
-				player.position.y = platform.y + platform.height - 1
+				player.position.y = platform.y + platform.height - 0.5
 				player.hasGravity = 0
 				player.angle = 0
 				player.action = Fighter.ACTIONS.IDLE

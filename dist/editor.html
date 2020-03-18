@@ -10,8 +10,8 @@
 				clear:both;
 			}
 			.g {
-				height: 25px;
-				width: 25px;
+				height: 10px;
+				width: 10px;
 				background-color: thistle;
 				float: left;
 				outline: 1px solid silver;
@@ -29,11 +29,11 @@
 		<h1>The Editor</h1>
 		<div>
 			<label>width</label>
-			<input id="width" type="number" value="20">
+			<input id="width" type="number" value="100">
 		</div>
 		<div>
 			<label>height</label>
-			<input id="height" type="number" value="20">
+			<input id="height" type="number" value="75">
 		</div>
 		<button id="set">Set</button>
 
@@ -50,6 +50,7 @@
 		</div>
 		<div class="rendered">
 		</div>
+		<div class="normalized"></div>
 
 
 		<script>
@@ -90,7 +91,7 @@
 						$container.append(`<div class="g" id="g_${y}_${x}"></div>`)
 					}
 				}
-				$container.css('width', `${w*25}px`)
+				$container.css('width', `${w*10}px`)
 				/* $container.on('click', '.g', (e) => {
 					e.target.classList.toggle('p')
 				}) */
@@ -121,7 +122,7 @@
 					for(let x=startX; x<=stopX; x++) {
 						let id = `#g_${y}_${x}`
 						console.log('add ', id)
-						$container.find(id).addClass('p')
+						$container.find(id).toggleClass('p')
 					}
 				}
 
@@ -142,14 +143,18 @@
 				grids.each( (index, grid) => {
 
 					if (!parsed.includes(index) && grid.classList.contains('p')) {
+						// found unparsed grid that is 'p'
 						let y = Math.floor(index/width)
 						let x = index%width
 						console.log(`Grid ${y}, ${x} has 'p'. Streak ${streak}`)
+						
+						// first item?
 						if (!streak)
-							platform = {x, y}
+							platform = {x, y, type:"p"}
 						
 						streak++
 					} else {
+						// did not find any - complete prev. platform, if any
 						if (streak) {
 							if (streak > width) {
 								platform.w = width
@@ -165,7 +170,6 @@
 								console.log('parsed', parsed)
 							}
 							platforms.push(platform)
-
 						}
 						streak = 0
 					}
@@ -183,6 +187,15 @@
 					platforms.push(platform)
 				}
 				console.log('platfroms', platforms)
+				
+				let json = JSON.stringify(platforms)
+				$('.rendered').html(json)
+
+				let norm = JSON.stringify(platforms.map(item => {
+					item.y = height - item.y - item.h
+					return item
+				}))
+				$('.normalized').html(norm)
 			}
 
 			addHeight = (grid, platform, offset, width, parsed) => {
@@ -190,7 +203,7 @@
 				let continues = true
 				const max = grid.length
 				parsed = parsed || []
-				tmp = []
+				let tmp = []
 				for (let i=0; i<platform.w; i++) {
 					if (offset+i < max) {
 						if (continues && grid[offset+i].classList.contains('p')) {
