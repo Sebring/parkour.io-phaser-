@@ -18,6 +18,8 @@ export default class Fighter extends DynamicObject {
 		this.grab = -1
 		this.friction = this.groundFriction
 		this.isStunned = 0
+		this.input = {}
+		this.direction = 0
 	}
 	// direction is 1 or -1
 	// action is one of: idle, jump, fight, run, die
@@ -129,14 +131,14 @@ export default class Fighter extends DynamicObject {
 				if (dir === 1 && player.angle < 0) {
 					// on edge?
 					if (player.x < platform.x) {
-					// console.log('!!stick', this.gameEngine.world.stepCount)
+					console.log('!!stick', this.gameEngine.world.stepCount)
 					player.isStunned = this.gameEngine.world.stepCount + 10
 					player.velocity.x = 0
 					}
 				} else if (dir === -1 && player.angle > 0) {
 					// on edge?
 					if (player.x + player.width > platform.x + platform.width) {
-						// console.log('stick!!')
+						console.log('stick!!')
 						player.isStunned = this.gameEngine.world.setCount + 10
 						player.velocity.x = 0
 					}

@@ -41,100 +41,17 @@ export default class BrawlerGameEngine extends GameEngine {
 	processInput(inputData, playerId) {
 
 		super.processInput(inputData, playerId);
-		console.log('input', inputData)
 		let player = this.world.queryObject({ playerId: playerId, instanceType: Fighter })
-		if (player && inputData.options.movement) {
-			console.log('movement')
+		if (player && inputData.options.keyboard) {
+			player.input[inputData.input] = inputData.options.keyDown
+			console.log('player action', player.input)
 			if (player.isStunned > inputData.step) {
 				return
 			}
 
-			let isClimbing = player.grab !== -1
-			let isRunning = player.ground !== -1 && !isClimbing 
-			let isFalling = !isRunning && !isClimbing
-
-			// directional movement
-			let direction = 0
-			if (inputData.input === 'right')
-				direction = 1
-			else if (inputData.input === 'left')
-				direction = -1
-
-			if (inputData) {
-				if (isRunning) {
-					player.angle = 0
-					player.velocity.x += player.runAcc * direction
-				} 
-				else if (isFalling) {
-					if (direction === 1) {
-						if (player.velocity.x > 0.2) {
-							player.velocity.x += 0.02
-						} else if (player.velocity.x < 0) {
-							player.velocity.x += 0.01
-						} else 
-							player.velocity.x += 0.15
-						
-					} else if (direction === -1) {
-						if (player.velocity.x < -0.2) {
-							player.velocity.x -= 0.02
-						} else if (player.velocity.x > 0) {
-							player.velocity.x -= 0.01
-						} else {
-							player.velocity.x -= 0.15
-						}
-					}
-					// lean into landing
-					player.angle = 5 * direction
-				} 
-				else if (isClimbing) {
-					let ledge = this.world.queryObject({id: player.grab})
-					let yDiff = ledge.y + ledge.height - player.y
-					// wall jump?
-					if (direction === -1 && player.x < ledge.x) {
-						player.velocity.x = (-player.runAcc) * 2
-						player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
-					} else if (direction === 1 && player.x + player.width > ledge.x + ledge.width) {
-						player.velocity.x = player.runAcc * 2
-						player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
-					}
-					// almost up, crane
-					if (yDiff > 0 && yDiff < 3) {
-						console.log('player.height', player.height)
-						if (direction === -1 && player.x + player.width > ledge.x + ledge.width) {
-							player.velocity.y = player.jumpForce/2
-						} else if (direction === 1 && player.x < ledge.x) {
-							player.velocity.y = player.jumpForce/2
-						}
-					}
-				}
-			}
-
-			if (inputData.input === 'ctrl') {
-				if (isRunning) {
-					player.velocity.y = player.jumpForce
-				} 
-			}
-
-			if (inputData.input === 'up') {
-				if (isClimbing) 
-					player.velocity.y = player.jumpForce/2
-			}
-			if (inputData.input === 'down') {
-				this.getAllActiveRooms()
-				// running
-				if (player.ground !== -1) {
-				} 
-				// jumping/falling
-				else if (player.grab === -1) {
-				}
-				// grabbing/climbing
-				else {
-					player.velocity.y = -player.jumpForce/2
-				}
-			}
-
 			// player.refreshToPhysics();
 			// this.inputsApplied.push(playerId);
+			return
 		}
 
 		if (inputData.input === 'editor') {
@@ -165,8 +82,106 @@ export default class BrawlerGameEngine extends GameEngine {
 
 	// logic for every game step
 	moveAll(stepInfo) {
+		// move all players
+		const players = this.world.queryObjects({instanceType: Fighter })
+		console
+		for (let player of players) {
+			// states
+			let isClimbing = player.grab !== -1
+			let isRunning = player.ground !== -1 && !isClimbing 
+			let isFalling = !isRunning && !isClimbing
+			
+			// directional movement
+			let direction = 0
+			if (player.input.right)
+				direction = 1
+			else if (player.input.left)
+				direction = -1
+			
+			if (isRunning) {
+				player.angle = 0
+				player.velocity.x += player.runAcc * direction
+				player.direction = direction
+			} else if (isFalling && direction) {
+				if (direction === 1) {
+					if (player.velocity.x > 0.2) {
+						player.velocity.x += 0.02
+					} else if (player.velocity.x < 0) {
+						player.velocity.x += 0.01
+					} else 
+						player.velocity.x += 0.15
+					
+				} else if (direction === -1) {
+					if (player.velocity.x < -0.2) {
+						player.velocity.x -= 0.02
+					} else if (player.velocity.x > 0) {
+						player.velocity.x -= 0.01
+					} else {
+						player.velocity.x -= 0.15
+					}
+				}
+				if (player.direction != direction) {
+					// lean back into landing
+					player.angle += direction
+				}
+				
+				
+			} else if (isClimbing) {
+				let ledge = this.world.queryObject({id: player.grab})
+				let yDiff = ledge.y + ledge.height - player.y
+				// wall jump?
+				if (direction === -1 && player.x < ledge.x) {
+					player.velocity.x = (-player.runAcc) * 2
+					player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
+					player.direction = direction
+				} else if (direction === 1 && player.x + player.width > ledge.x + ledge.width) {
+					player.velocity.x = player.runAcc * 2
+					player.velocity.y += player.velocity.y > 0.1 ? player.jumpForce : 0.1
+					player.direction = direction
+				}
+				// almost up, crane
+				if (yDiff > 0 && yDiff < 3) {
+					console.log('player.height', player.height)
+					if (direction === -1 && player.x + player.width > ledge.x + ledge.width) {
+						player.velocity.y = player.jumpForce/2
+					} else if (direction === 1 && player.x < ledge.x) {
+						player.velocity.y = player.jumpForce/2
+					}
+				}
+			}
+
+			// jump
+			if (player.input.ctrl) {
+				if (isRunning) {
+					player.velocity.y = player.jumpForce
+				} 
+			}
+
+			// up
+			if (player.input.up) {
+				if (isClimbing) 
+					player.velocity.y = player.jumpForce/2
+			}
+
+			// down
+			if (player.input.down) {
+				if (isRunning) {
+				} 
+				else if (isFalling) {
+				}
+				else if (isClimbing) {
+					player.velocity.y = -player.jumpForce/2
+				}
+			}
+
+		}
+
 		if (stepInfo.isReenact)
 			return
+		this.updateAnimationData(stepInfo)
+	}
+
+	updateAnimationData(stepInfo) {
 	}
 
 	// create fighter
