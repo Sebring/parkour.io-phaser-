@@ -1,6 +1,6 @@
 {
-  "name": "lance-brawler",
-  "version": "4.0.0",
+  "name": "parkour.io",
+  "version": "0.0.10",
   "engines": {
     "node": ">=11.0.0"
   },
