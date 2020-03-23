@@ -21,20 +21,18 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
-    "babel-watch": "^7.0.0",
-    "eslint": "^3.16.1",
-    "eslint-config-google": "^0.7.1"
+    "babel-watch": "^7.0.0"
   },
   "scripts": {
-	 "start": "node dist-server/main.js",
+    "start": "node dist-server/main.js",
     "start-debug": "node --inspect-brk dist-server/main.js",
     "start-dev": "nodemon dist-server/main.js",
     "postinstall": "webpack && babel src --source-maps --out-dir dist-server",
     "build": "webpack && babel src --source-maps --out-dir dist-server",
     "build-watch": "webpack --watch && babel src --source-maps --out-dir dist-server",
     "stats": "webpack --env production --profile --json > stats.json",
-	 "dev": "webpack --watch",
-	 "babel": "babel-watch src/main.js"
+    "dev": "webpack --watch",
+    "babel": "babel-watch src/main.js"
   },
   "repository": {
     "type": "git",
@@ -42,9 +40,9 @@
   },
   "keywords": [
     "game",
-	 "parkour",
-	 "platformer",
-	 "2D",
+    "parkour",
+    "platformer",
+    "2D",
     "lance",
     "lance-gg",
     "multiplayer",
