@@ -131,15 +131,15 @@ export default class Fighter extends DynamicObject {
 				if (dir === 1 && player.angle < 0) {
 					// on edge?
 					if (player.x < platform.x) {
-					console.log('!!stick', this.gameEngine.world.stepCount)
-					player.isStunned = this.gameEngine.world.stepCount + 10
-					player.velocity.x = 0
+						console.log('!!stick', this.gameEngine.world.stepCount)
+						player.isStunned = this.gameEngine.world.stepCount + 20
+						player.velocity.x = 0
 					}
 				} else if (dir === -1 && player.angle > 0) {
 					// on edge?
 					if (player.x + player.width > platform.x + platform.width) {
 						console.log('stick!!')
-						player.isStunned = this.gameEngine.world.setCount + 10
+						player.isStunned = this.gameEngine.world.stepCount + 20
 						player.velocity.x = 0
 					}
 				}

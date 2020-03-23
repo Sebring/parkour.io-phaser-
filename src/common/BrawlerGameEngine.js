@@ -45,9 +45,6 @@ export default class BrawlerGameEngine extends GameEngine {
 		if (player && inputData.options.keyboard) {
 			player.input[inputData.input] = inputData.options.keyDown
 			console.log('player action', player.input)
-			if (player.isStunned > inputData.step) {
-				return
-			}
 
 			// player.refreshToPhysics();
 			// this.inputsApplied.push(playerId);
@@ -81,6 +78,7 @@ export default class BrawlerGameEngine extends GameEngine {
 	}
 
 	// logic for every game step
+	//@param stepInfo { step, isReenact, dt }
 	moveAll(stepInfo) {
 		// move all players
 		const players = this.world.queryObjects({instanceType: Fighter })
@@ -91,6 +89,12 @@ export default class BrawlerGameEngine extends GameEngine {
 			let isRunning = player.ground !== -1 && !isClimbing 
 			let isFalling = !isRunning && !isClimbing
 			
+
+			if (player.isStunned > stepInfo.step) {
+				console.log('player is stunned', player.isStunned)
+				return;
+			}
+
 			// directional movement
 			let direction = 0
 			if (player.input.right)
