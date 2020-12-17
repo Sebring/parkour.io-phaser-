@@ -84,19 +84,19 @@ export default class EditorRenderer extends Renderer {
 
 	setupStage() {
 		console.log(' - setup stage')
-		let pixiEl = document.getElementById('pixi')
+		const pixiEl = document.getElementById('pixi')
 		pixiEl.style.width = `${this.viewportWidth}px`
 		pixiEl.style.height = `${this.viewportHeight}px`
 		pixiEl.style.backgroundColor = 'white'
 	}
 
 	setupEditor() {
-		let editorEl = document.getElementById('editor')
+		const editorEl = document.getElementById('editor')
 		editorEl.style.width = `${this.viewportWidth}px`
 		editorEl.style.height = `${this.viewportHeight}px`
 		
 		// create grid
-		let w = this.gameEngine.spaceWidth, h = this.gameEngine.spaceHeight
+		const w = this.gameEngine.spaceWidth, h = this.gameEngine.spaceHeight
 		editorEl.style.width = w * this.pixelsPerSpaceUnit
 		for (let y=0; y<h; y++) {
 			for (let x=0; x<w; x++) {
@@ -122,8 +122,10 @@ export default class EditorRenderer extends Renderer {
 	gridClickEnd(e) {
 		this.selectedGrid[1] = e.target
 		this.updateBlueprint()
-		let platforms = this.parseGridToPlatforms()
+		const platforms = this.parseGridToPlatforms()
 		
+		this.platformToGrid(platforms[0])
+
 		this.clientEngine.editorCreatePlatform(platforms)
 
 	}
@@ -257,7 +259,14 @@ export default class EditorRenderer extends Renderer {
 
 	platformToGrid(platform) {
 		// reverse y-axis
-		let y = platform.y - 75 - 1 
+		let y = platform.y - 74
+		let x = platform.x
+		const $editor = document.getElementById('editor')
+		for (let i=0; i<platform.w; i++) {
+			console.log('query', `#g_${y}_${x}`)
+			let $p = $editor.querySelector(`#g_${y}_${x}`)
+			console.log('cell', $p)
+		}
 	}
 
 

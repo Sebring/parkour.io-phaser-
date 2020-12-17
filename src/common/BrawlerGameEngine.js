@@ -21,7 +21,7 @@ export default class BrawlerGameEngine extends GameEngine {
 		this.climbFriction = new TwoVector(0.5, 0.5)
 
 		this.physicsEngine = new PkPhysicsEngine({
-			gravity: new TwoVector(0, -0.05),
+			gravity: new TwoVector(0, -0.045),
 			collisions: { type: 'force', autoResolve: false },
 			gameEngine: this
 		})
@@ -39,8 +39,8 @@ export default class BrawlerGameEngine extends GameEngine {
 	}
 
 	processInput(inputData, playerId) {
+		super.processInput(inputData, playerId)
 
-		super.processInput(inputData, playerId);
 		let player = this.world.queryObject({ playerId: playerId, instanceType: Fighter })
 		if (player && inputData.options.keyboard) {
 			player.input[inputData.input] = inputData.options.keyDown

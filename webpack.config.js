@@ -9,7 +9,7 @@ module.exports = {
     },
     devtool: 'source-map',
     module: {
-        loaders: [
+        rules: [
             { test: /\.css$/, loader: 'style!css' },
             {
                 test: /\.scss$/,
