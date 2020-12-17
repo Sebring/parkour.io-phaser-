@@ -1,7 +1,7 @@
 {
 	"name": "parkour.io",
 	"version": "0.0.1",
-	"description": "Parkour online game based phaser.",
+	"description": "Parkour online game.",
 	"scripts": {
 		"start": "parcel src/index.html -p 8000",
 		"build": "parcel build src/index.html --out-dir dist",
