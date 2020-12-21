@@ -52,12 +52,16 @@ export default class GameScene extends Phaser.Scene {
 		const spawnPoint = map.findObject('objects', obj => obj.type === 'playerSpawn')
 		
 		this.player = new PlayerEntity(this, K_PLAYER)
-		this.player.spawn(spawnPoint.x, spawnPoint.y)
 		
+		this.player.spawn(spawnPoint.x, spawnPoint.y)
+		this.player.sprite.on('stick', this.onStick, this)
 		// const player = this.physics.add.sprite(spawnPoint.x, spawnPoint.y, K_PLAYER, 0)
 
 		this.physics.add.collider(this.player.sprite, world)
+	}
 
+	onStick() {
+		console.log('EVENT STICK')
 	}
 
 	update() {

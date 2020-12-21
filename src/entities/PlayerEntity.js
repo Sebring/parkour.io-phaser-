@@ -147,6 +147,7 @@ export default class PlayerEntity {
 
 		if (this.sprite.body.velocity.x === 0) {
 			console.log('STICK!')
+			this.sprite.emit('stick')
 		}
 
 		this.state.stop()
