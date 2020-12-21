@@ -2,11 +2,13 @@ import Phaser from 'phaser'
 import * as StateMachine from 'javascript-state-machine'
 import { getDistance ,LEFT, RIGHT } from '../util/Util'
 
-export default class PlayerEntity {
-	constructor(scene, key = 'PLAYER') {
-		this.scene = scene
+export default class PlayerEntity extends Phaser.Physics.Arcade.Sprite {
+	constructor(scene, x, y, key) {
+		super(scene, x, y, key, 0)
+		scene.add.existing(this)
+		scene.physics.add.existing(this)
+
 		this.key = key
-		this.sprite = null
 		this.jumpForce = -350
 		this.groundDrag = 500
 		this.airDrag = 200
@@ -14,22 +16,9 @@ export default class PlayerEntity {
 		this.jumpStop = 0
 		this.jumpDirection = 0
 		this.jumpOrigin = null
-
-		const anims = scene.anims
-
-		anims.create({
-			key: 'run',
-			frames: anims.generateFrameNumbers(this.key, { start: 0, end: 5}),
-			frameRate: 12, 
-			repeat: -1
-		})
-
-		anims.create({
-			key: 'jump-up',
-			frames: anims.generateFrameNumbers(this.key, { start: 6, end: 6}),
-			framerate: 1,
-			repeat: -1
-		})
+		
+		this.init()
+		this.createAnims(scene)
 
 		const { LEFT, RIGHT, UP, W, A, D } = Phaser.Input.Keyboard.KeyCodes
 		this.keys = scene.input.keyboard.addKeys({ LEFT, RIGHT, UP, W, A, D })
@@ -55,12 +44,35 @@ export default class PlayerEntity {
 		this.state = new FSM()
 	}
 
+	init() {
+		this.setCollideWorldBounds(true)
+			.setBounce(0.1)
+			.setDrag(this.groundDrag, 0)
+			.setMaxVelocity(300, 400)
+	}
+
+	createAnims(scene) {
+		scene.anims.create({
+			key: 'run',
+			frames: scene.anims.generateFrameNumbers(this.key, { start: 0, end: 5}),
+			frameRate: 12, 
+			repeat: -1
+		})
+
+		scene.anims.create({
+			key: 'jump-up',
+			frames: scene.anims.generateFrameNumbers(this.key, { start: 6, end: 6}),
+			framerate: 1,
+			repeat: -1
+		})
+	}
+
 	onBeforeJump(fcm) {
 		console.log('onJump', { fcm })
 		
 		let canJump = true
 		// check if possible
-		canJump  = this.sprite.body.blocked.down
+		canJump  = this.body.blocked.down
 		return canJump
 	}
 
@@ -68,16 +80,16 @@ export default class PlayerEntity {
 		console.log('onJumping', { fcm })
 
 		this.jumpStop = 0
-		this.jumpDirection = Phaser.Math.Clamp(this.sprite.body.velocity.x, -1, 1)
-		this.jumpOrigin = { x: this.sprite.x, y: this.sprite.y }
+		this.jumpDirection = Phaser.Math.Clamp(this.body.velocity.x, -1, 1)
+		this.jumpOrigin = { x: this.x, y: this.y }
 		console.log(this.jumpOrigin)
 
 		// physics
-		this.sprite.setVelocityY(this.jumpForce)
-		this.sprite.setDrag(this.airDrag, 0)
+		this.setVelocityY(this.jumpForce)
+		this.setDrag(this.airDrag, 0)
 
 		// graphics
-		this.sprite.play('jump-up')
+		this.play('jump-up')
 
 		// sounds
 	}
@@ -85,14 +97,13 @@ export default class PlayerEntity {
 	updateJumping() {
 
 		const keys = this.keys
-		const player  = this.sprite
 		const acc = this.airAcc
 
 		if (keys.LEFT.isDown || keys.A.isDown) {
-			player.setAccelerationX(-acc)
+			this.setAccelerationX(-acc)
 			this.jumpStop--
 		} else if (keys.RIGHT.isDown || keys.D.isDown) {
-			player.setAccelerationX(acc)
+			this.setAccelerationX(acc)
 			this.jumpStop++
 		} else {
 			
@@ -100,13 +111,13 @@ export default class PlayerEntity {
 
 		// can't change direction mid-air
 		if (this.jumpDirection === RIGHT) {
-			player.body.setVelocityX(Phaser.Math.Clamp(player.body.velocity.x, 0, player.body.velocity.x))
+			this.setVelocityX(Phaser.Math.Clamp(this.body.velocity.x, 0, this.body.velocity.x))
 		}
 		if (this.jumpDirection === LEFT) {
-			player.body.setVelocityX(Phaser.Math.Clamp(player.body.velocity.x, player.body.velocity.x, 0))
+			this.setVelocityX(Phaser.Math.Clamp(this.body.velocity.x, this.body.velocity.x, 0))
 		}
 
-		if (this.sprite.body.blocked.down) {
+		if (this.body.blocked.down) {
 			this.state.land()
 		}
 	}
@@ -115,27 +126,27 @@ export default class PlayerEntity {
 		console.log('onLand', { fcm, jump: this.jumpStop })
 
 		// Physics
-		this.sprite.setAccelerationX(0)
+		this.setAccelerationX(0)
 		// decrease velocity on landing and boost drag if leaning back
-		let vX = Phaser.Math.FloorTo(this.sprite.body.velocity.x)
+		let vX = Phaser.Math.FloorTo(this.body.velocity.x)
 		let dX = vX
 
 		// jumping right and leaning back
 		if (vX > 0 && this.jumpStop < 0) { 
 			dX = Phaser.Math.Clamp(vX + (this.jumpStop * 2), 0, vX)
-			this.sprite.body.velocity.x = dX
-			this.sprite.setDrag(this.groundDrag + Math.abs(this.jumpStop) * 100, 0)
+			this.body.velocity.x = dX
+			this.setDrag(this.groundDrag + Math.abs(this.jumpStop) * 100, 0)
 		}
 		
 		// jumping left and leaning back
 		if (vX < 0 && this.jumpStop > 0) {
 			dX = Phaser.Math.Clamp(vX + (this.jumpStop * 2), vX, 0)
-			this.sprite.body.velocity.x = dX
-			this.sprite.setDrag(this.groundDrag + Math.abs(this.jumpStop) * 100, 0)
+			this.body.velocity.x = dX
+			this.setDrag(this.groundDrag + Math.abs(this.jumpStop) * 100, 0)
 		}
 
 		// jump distance
-		let jumpDistance = getDistance(this.jumpOrigin, { x: this.sprite.x, y: this.sprite.y })
+		let jumpDistance = getDistance(this.jumpOrigin, { x: this.x, y: this.y })
 		console.log(jumpDistance)
 		// graphics
 		//
@@ -145,9 +156,9 @@ export default class PlayerEntity {
 
 	updateLanding() {
 
-		if (this.sprite.body.velocity.x === 0) {
+		if (this.body.velocity.x === 0) {
 			console.log('STICK!')
-			this.sprite.emit('stick')
+			this.emit('stick')
 		}
 
 		this.state.stop()
@@ -168,39 +179,38 @@ export default class PlayerEntity {
 	}
 
 	onMove(fcm) {
-		this.sprite.setDrag(this.groundDrag, 0)
-		this.sprite.play('run')
+		this.setDrag(this.groundDrag, 0)
+		this.play('run')
 	}
 
 	updateRunning() {
 		const keys = this.keys
-		const player  = this.sprite
 		const acc = 600
 
 		if (keys.LEFT.isDown || keys.A.isDown) {
-			player.setAccelerationX(-acc)
-			if (!player.flipX && player.body.velocity.x < 0)
-				player.toggleFlipX()
+			this.setAccelerationX(-acc)
+			if (!this.flipX && this.body.velocity.x < 0)
+				this.toggleFlipX()
 			
 		} else if (keys.RIGHT.isDown || keys.D.isDown) {
-			player.setAccelerationX(acc)
-			if (player.flipX && player.body.velocity.x > 0)
-				player.toggleFlipX()
+			this.setAccelerationX(acc)
+			if (this.flipX && this.body.velocity.x > 0)
+				this.toggleFlipX()
 			/*
 			if (this.state.isFacingLeft) {
 				this.state.isFacingLeft = false
-				player.setFlipX(false)
+				this.setFlipX(false)
 			}
 			*/
 		} else {
-			player.setAccelerationX(0)
-			if (this.sprite.body.velocity.x === 0) {
+			this.setAccelerationX(0)
+			if (this.body.velocity.x === 0) {
 				this.state.stop()
 			}
 		}
 
 		if (keys.UP.isDown || keys.W.isDown) {
-			player.setAccelerationX(0)
+			this.setAccelerationX(0)
 			this.state.jump()
 		}
 
@@ -209,44 +219,16 @@ export default class PlayerEntity {
 	}
 
 	isMovingRight() {
-		return this.sprite.body.velocity.x > 0
+		return this.body.velocity.x > 0
 	}
 
 	isMovingLeft() {
-		return this.sprite.body.velocity.x < 0
+		return this.body.velocity.x < 0
 	}
 
 
 	update() {
-		if (!this.sprite) return
 
-		const keys = this.keys
-		const player = this.sprite
-		const onGround = player.body.blocked.down
-		const acc = onGround ? 600 : 200
-
-		/*
-		if (keys.LEFT.isDown || keys.A.isDown) {
-			player.setAccelerationX(-acc)
-			if (!this.state.isFacingLeft) {
-				this.state.isFacingLeft = true
-				player.setFlipX(true)
-			}
-		} else if (keys.RIGHT.isDown || keys.D.isDown) {
-			player.setAccelerationX(acc)
-			if (this.state.isFacingLeft) {
-				this.state.isFacingLeft = false
-				player.setFlipX(false)
-			}
-		} else {
-			player.setAccelerationX(0)
-		}
-
-		if (this.state.isJumping && onGround) {
-			this.sprite.play('run')
-			this.state.isJumping = false
-		}
-*/
 		switch (this.state.state) {
 			case 'jumping':
 				this.updateJumping()
@@ -265,16 +247,5 @@ export default class PlayerEntity {
 			break
 		}
 
-	}
-
-	spawn(x, y) {
-		this.sprite = this.scene.physics.add.sprite(x, y, this.key, 0)
-		this.sprite
-			.setBounce(0.1)
-			.setDrag(this.groundDrag, 0)
-			.setMaxVelocity(300, 400)
-			.setCollideWorldBounds(true)
-		this.sprite.play('run')
-		return this.sprite
 	}
 }

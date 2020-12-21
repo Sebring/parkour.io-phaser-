@@ -51,13 +51,9 @@ export default class GameScene extends Phaser.Scene {
 
 		const spawnPoint = map.findObject('objects', obj => obj.type === 'playerSpawn')
 		
-		this.player = new PlayerEntity(this, K_PLAYER)
-		
-		this.player.spawn(spawnPoint.x, spawnPoint.y)
-		this.player.sprite.on('stick', this.onStick, this)
-		// const player = this.physics.add.sprite(spawnPoint.x, spawnPoint.y, K_PLAYER, 0)
-
-		this.physics.add.collider(this.player.sprite, world)
+		this.player = new PlayerEntity(this, spawnPoint.x, spawnPoint.y, K_PLAYER)
+		this.physics.add.collider(this.player, world)
+		this.player.on('stick', this.onStick, this)
 	}
 
 	onStick() {
@@ -119,11 +115,5 @@ export default class GameScene extends Phaser.Scene {
 		})
 		*/
 		return this.starsPawner.spawn(count)
-	}
-
-	createPlayer() {
-		const P = new PlayerEntity(this, K_PLAYER)
-		P.spawn(100, 400)
-		return P
 	}
 }
