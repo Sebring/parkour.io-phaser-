@@ -18,6 +18,7 @@
 		"@babel/core": "^7.10.5",
 		"babel-eslint": "^10.1.0",
 		"eslint": "^6.8.0",
+		"javascript-state-machine": "^3.1.0",
 		"minimist": ">=1.2.2",
 		"parcel-plugin-static-files-copy": "^2.5.0"
 	},
